@@ -25,3 +25,10 @@ class RegistrationForm(UserCreationForm):
     except Exception as e:
       return username
     raise forms.ValidationError(f"username {username} is alreday in use.")
+
+class LoginForm(forms.ModelForm):
+  password = forms.CharField(label="Password", widget=forms.PasswordInput)
+
+  class Meta:
+    model = Account
+    fields = ('email', 'password')
