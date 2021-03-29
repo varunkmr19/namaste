@@ -1,6 +1,6 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 
 from account.forms import RegistrationForm, LoginForm
 
@@ -56,3 +56,7 @@ def get_redirect_if_exists(request):
     if request.GET.get('next'):
       redirect = str(request.GET.get('next'))
   return redirect
+
+def logout_view(request):
+  logout(request)
+  return redirect('home')
