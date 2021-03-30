@@ -31,6 +31,7 @@ DEBUG = True
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    BASE_URL = 'http://localhost:8000/'
 
 ALLOWED_HOSTS = []
 
