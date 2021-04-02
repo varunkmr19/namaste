@@ -49,16 +49,16 @@ class AccountUpdateForm(forms.ModelForm):
   def clean_email(self):
     email = self.cleaned_data['email'].lower()
     try:
-      account = Account.objects.get(email=email)
-    except Exception as e:
+      account = Account.objects.exclude(pk=self.instance.pk).get(email=email)
+    except Account.DoesNotExist:
       return email
     raise forms.ValidationError(f"Email {email} is alreday in use.")
   
   def clean_username(self):
     username = self.cleaned_data['username'].lower()
     try:
-      account = Account.objects.get(username=username)
-    except Exception as e:
+      account = Account.objects.exclude(pk=self.instance.pk).get(username=username)
+    except Account.DoesNotExist:
       return username
     raise forms.ValidationError(f"username {username} is alreday in use.")
 
