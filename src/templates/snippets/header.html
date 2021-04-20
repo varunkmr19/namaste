@@ -7,7 +7,7 @@
 		<h5 class="mr-3 font-weight-normal justify-content-start">
 			<a class="p-2 text-dark" href="{% url 'home' %}">Home</a>
 		</h5>
-		<form class="search-bar justify-content-start">
+		<form class="search-bar justify-content-start" onsubmit="return executeSearch()">
 			<input type="text" class="form-control" name="q" id="id_q_large" placeholder="Search...">
 		</form>
 
@@ -38,7 +38,7 @@
 							<div class="btn-group dropleft">
 								<img class="account-image rounded-circle m-auto d-block dropdown-toggle" id="id_profile_links" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" src="{{request.user.profile_image.url}}" alt="profile image" width="40" height="40">
 								<div class="dropdown-menu" aria-labelledby="id_profile_links">
-									<a class="dropdown-item" href="#">Account</a>
+									<a class="dropdown-item" href="{% url 'account' user_id=request.user.id %}">Account</a>
 									<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 								</div>
 							</div>
@@ -58,7 +58,7 @@
 		<h5 class="font-weight-normal">
 		<a class="p-2 text-dark" href="{% url 'home' %}">Home</a>
 		</h5>
-		<form class="search-bar justify-content-start">
+		<form class="search-bar justify-content-start" onsubmit="return executeSearch()">
 			<input type="text" class="form-control" name="q" id="id_q_small" placeholder="Search...">
 		</form>
 		<div class="d-flex flex-row-reverse flex-grow-1">
@@ -69,7 +69,7 @@
 						<div class="btn-group dropleft">
 							<img class="account-image rounded-circle m-auto d-block dropdown-toggle" id="id_profile_links" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" src="{{request.user.profile_image.url}}" alt="profile image" width="40" height="40">
 							<div class="dropdown-menu" aria-labelledby="id_profile_links">
-								<a class="dropdown-item" href="#">Account</a>
+								<a class="dropdown-item" href="{% url 'account' user_id=request.user.id %}">Account</a>
 								<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 							</div>
 						</div>
@@ -84,3 +84,14 @@
 	</div>
 	<!-- END SMALL SCREENS -->
 </div>
+
+<script>
+	function executeSearch() {
+		let query = document.getElementById('id_q_small').value
+		if(query == "") {
+			query = document.getElementById('id_q_large').value
+		}
+		window.location.replace("{% url 'search' %}?q=" + query)
+		return false
+	}
+</script>

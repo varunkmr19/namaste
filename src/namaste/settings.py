@@ -31,6 +31,7 @@ DEBUG = True
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    BASE_URL = 'http://localhost:8000/'
 
 ALLOWED_HOSTS = []
 
@@ -143,10 +144,12 @@ STATICFILES_DIRS = [
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_cdn')
 
 TEMP = os.path.join(BASE_DIR, 'media_cdn/temp')
 
 AUTH_USER_MODEL = 'account.Account'
+
+# 10 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
