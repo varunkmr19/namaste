@@ -1,3 +1,4 @@
+let imageFile, base64ImageString, cropX, cropY, cropWidth, cropHeight;
 function readURL(imageUrl) {
   if (imageUrl.files && imageUrl.files[0]) {
     const reader = new FileReader();
@@ -10,9 +11,77 @@ function readURL(imageUrl) {
       imageFieldDisplay.src = image;
       const imageSrc = document.getElementById("id_profile_image");
       imageSrc.src = image;
+      const cropper = new Cropper(imageFieldDisplay, {
+        aspectRatio: 1/1,
+        crop(event) {
+          console.log(event.detail.x)
+          console.log(event.detail.y)
+          console.log(event.detail.width)
+          console.log(event.detail.height)
+          setImageCropProperties(image, event.detail.x, event.detail.y, event.detail.height, event.detail.width)
+        }
+      })
     };
 
     reader.readAsDataURL(imageUrl.files[0]);
+  }
+}
+
+function setImageCropProperties(image, x, y, width, height) {
+  imageFile = image
+  cropX = x
+  cropY = y
+  cropWidth = width
+  cropHeight = height
+}
+
+function isImageSizeValid(image) {
+  console.log("max size: {{DATA_UPLOAD_MAX_MEMORY_SIZE}}")
+  const startIndex = image.indexOf("base64,") + 7;
+  const base64str = image.substr(startIndex);
+  const decoded = atob(base64str);
+  console.log("FileSize: " + decoded.length);
+  if(decoded.length>= "{{DATA_UPLOAD_MAX_MEMORY_SIZE}}"){
+    return null
+  }
+  return base64str
+}
+
+function cropImage(image, x, y, width, height) {
+  base64ImageString = isImageSizeValid(image)
+
+  if(base64ImageString != null){
+    var requestData = {
+      "csrfmiddlewaretoken": window.CSRF_TOKEN,
+      "image": base64ImageString,
+      "cropX": cropX,
+      "cropY": cropY,
+      "cropWidth": cropWidth,
+      "cropHeight": cropHeight
+    }
+    $.ajax({
+      type: 'POST',
+      dataType: "json",
+      url: "http://localhost:8000/account/user/window.USER_ID/edit/cropImage",
+      data: requestData,
+      timeout: 10000,
+      success: function(data) {
+        if(data.result == "success"){
+          document.getElementById("id_cancel").click()
+        }
+        else if(data.result == "error"){
+          alert(data.exception)
+          document.getElementById("id_cancel").click()
+        }
+      },
+      error: function(data) {
+        console.error("ERROR...", data)
+      },
+    });
+  }
+  else{
+    alert("Upload an image smaller than 10 MB");
+    document.getElementById("id_cancel").click()
   }
 }
 
@@ -40,6 +109,7 @@ function enableImageOverlay() {
   middleContainer.style.top = "50%";
   middleContainer.style.left = "50%";
   middleContainer.style.transform = "translate(-50%, -50%)";
+  middleContainer.style.textAlign = "center";
 
   const imageContainer = document.getElementById("id_image_container");
   imageContainer.addEventListener("mouseover", (event) => {
@@ -68,7 +138,6 @@ function disableImageOverlay() {
   const profileImage = document.getElementById("id_profile_image_display");
   const middleContainer = document.getElementById("id_middle_container");
   const imageContainer = document.getElementById("id_image_container");
-  const cropConfirm = document.getElementById("id_image_crop_confirm");
 
   imageContainer.removeEventListener("mouseover", function (event) {
     profileImage.style.opacity = "0.3";
@@ -85,15 +154,16 @@ function disableImageOverlay() {
   text.style.cursor = "default";
   text.style.opacity = "0";
 
-  imageContainer.removeEventListener("click", function (event) {
+  document.getElementById('id_image_container').removeEventListener("click", function (event) {
     event.preventDefault();
     // do nothing
   });
-  profileImage.addEventListener("click", function (event) {
+  document.getElementById('id_profile_image').addEventListener("click", function (event) {
     event.preventDefault();
     // do nothing
   });
 
+  const cropConfirm = document.getElementById("id_image_crop_confirm");
   cropConfirm.classList.remove("d-none");
   cropConfirm.classList.add("d-flex");
   cropConfirm.classList.add("flex-row");
@@ -101,7 +171,14 @@ function disableImageOverlay() {
 
   const confirm = document.getElementById("id_confirm");
   confirm.addEventListener("click", function (event) {
-    enableImageOverlay();
+    console.log("Sending crop data for processing...")
+			cropImage(
+				imageFile, 
+				cropX, 
+				cropY, 
+				cropWidth,
+				cropHeight
+			)
   });
 
   const cancel = document.getElementById("id_cancel");
